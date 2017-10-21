@@ -56,6 +56,8 @@ spec:
           value: "Europe/Amsterdam"
         - name: ALLOWED_NETWORKS
           value: "172.16.0.0/16,10.0.0.0/22,10.112.0.0/28,10.113.0.0/24,10.111.0.0/24"
+        - name: ADVERTISE_IP
+          value: http://10.111.0.111:32400/
         volumeMounts:
         - name: plex-config
           mountPath: /config
