@@ -1,0 +1,55 @@
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: sonarr
+  namespace: mms
+  labels:
+    app: sonarr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sonarr
+  template:
+    metadata:
+      labels:
+        app: sonarr
+    spec:
+      containers:
+      - name: sonarr
+        image: linuxserver/sonarr:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8989
+          protocol: TCP
+        env:
+        - name: PUID
+          value: "10002"
+        - name: PGID
+          value: "10004"
+        - name: TZ
+          value: "Europe/Amsterdam"
+        volumeMounts:
+        - name: sonarr-localtime
+          mountPath: /etc/localtime
+        - name: sonarr-config
+          mountPath: /config
+        - name: sonarr-downloads
+          mountPath: /downloads
+        - name: sonarr-tv
+          mountPath: /tv
+      volumes:
+      - name: sonarr-localtime
+        hostPath:
+          path: /etc/localtime
+          type: File
+      - name: sonarr-config
+        hostPath:
+          path: /mms/config/sonarr
+      - name: sonarr-downloads
+        hostPath:
+          path: /mms/Downloads
+      - name: sonarr-tv
+        hostPath:
+          path: /mms/TV
