@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: deluge
+  namespace: mms
+  labels:
+    app: deluge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deluge
+  template:
+    metadata:
+      labels:
+        app: deluge
+    spec:
+      containers:
+      - name: deluge
+        image: linuxserver/deluge:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8112
+          protocol: TCP
+        - containerPort: 58846
+          protocol: TCP
+        - containerPort: 64328
+          protocol: TCP
+        - containerPort: 64328
+          protocol: UDP
+        env:
+        - name: PUID
+          value: "10002"
+        - name: PGID
+          value: "10002"
+        - name: TZ
+          value: "Europe/Amsterdam"
+        - name: UMASK_SET
+          value: "022"
+        volumeMounts:
+        - name: deluge-config
+          mountPath: /config
+        - name: deluge-downloads
+          mountPath: /downloads
+      volumes:
+      - name: deluge-config
+        hostPath:
+          path: /mms/config/deluge
+      - name: deluge-downloads
+        hostPath:
+          path: /mms/Downloads
