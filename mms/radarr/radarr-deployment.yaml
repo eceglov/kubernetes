@@ -1,0 +1,55 @@
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: radarr
+  namespace: mms
+  labels:
+    app: radarr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: radarr
+  template:
+    metadata:
+      labels:
+        app: radarr
+    spec:
+      containers:
+      - name: radarr
+        image: linuxserver/radarr:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 7878
+          protocol: TCP
+        env:
+        - name: PUID
+          value: "10002"
+        - name: PGID
+          value: "10005"
+        - name: TZ
+          value: "Europe/Amsterdam"
+        volumeMounts:
+        - name: radarr-localtime
+          mountPath: /etc/localtime
+        - name: radarr-config
+          mountPath: /config
+        - name: radarr-downloads
+          mountPath: /downloads
+        - name: radarr-movies
+          mountPath: /movies
+      volumes:
+      - name: radarr-localtime
+        hostPath:
+          path: /etc/localtime
+          type: File
+      - name: radarr-config
+        hostPath:
+          path: /mms/config/radarr
+      - name: radarr-downloads
+        hostPath:
+          path: /mms/Downloads
+      - name: radarr-movies
+        hostPath:
+          path: /mms/Movies
