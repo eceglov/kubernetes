@@ -30,6 +30,7 @@ spec:
   - port: 3478
     name: stun-port
     targetPort: 3478
+    nodePort: 30478
     protocol: UDP
   - port: 8881
     name: wireless-client-redirector-port1
