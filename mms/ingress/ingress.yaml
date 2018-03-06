@@ -1,39 +1,37 @@
-apiVersion: v1
-items:
-- apiVersion: extensions/v1beta1
-  kind: Ingress
-  metadata:
-    name: mms
-    namespace: mms
-  spec:
-    rules:
-    - host: plex.dotfoss.mgmt
-      http:
-        paths:
-        - backend:
-            serviceName: plex
-            servicePort: 32400
-    - host: deluge.dotfoss.mgmt
-      http:
-        paths:
-        - backend:
-            serviceName: deluge
-            servicePort: 30112
-    - host: jackett.dotfoss.mgmt
-      http:
-        paths:
-        - backend:
-            serviceName: jackett
-            servicePort: 30117
-    - host: radarr.dotfoss.mgmt
-      http:
-        paths:
-        - backend:
-            serviceName: radarr
-            servicePort: 30878
-    - host: sonarr.dotfoss.mgmt
-      http:
-        paths:
-        - backend:
-            serviceName: sonarr
-            servicePort: 30989
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: mms
+  namespace: mms
+spec:
+  rules:
+  - host: plex.dotfoss.mgmt
+    http:
+      paths:
+      - backend:
+          serviceName: plex
+          servicePort: 32400
+  - host: deluge.dotfoss.mgmt
+    http:
+      paths:
+      - backend:
+          serviceName: deluge
+          servicePort: 30112
+  - host: jackett.dotfoss.mgmt
+    http:
+      paths:
+      - backend:
+          serviceName: jackett
+          servicePort: 30117
+  - host: radarr.dotfoss.mgmt
+    http:
+      paths:
+      - backend:
+          serviceName: radarr
+          servicePort: 30878
+  - host: sonarr.dotfoss.mgmt
+    http:
+      paths:
+      - backend:
+          serviceName: sonarr
+          servicePort: 30989
