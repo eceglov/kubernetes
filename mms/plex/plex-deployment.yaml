@@ -1,27 +1,43 @@
----
-apiVersion: apps/v1beta2
+apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: plex
-  namespace: mms
   labels:
     app: plex
+  name: plex
+  namespace: mms
 spec:
+  progressDeadlineSeconds: 600
   replicas: 1
+  revisionHistoryLimit: 10
   selector:
     matchLabels:
       app: plex
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
   template:
     metadata:
+      creationTimestamp: null
       labels:
         app: plex
     spec:
-      # hostNetwork: true
       containers:
-      - name: plex
+      - env:
+        - name: PLEX_UID
+          value: "10002"
+        - name: PLEX_GID
+          value: "10001"
+        - name: TZ
+          value: Europe/Amsterdam
+        - name: ALLOWED_NETWORKS
+          value: 172.16.0.0/16,10.0.0.0/22,10.112.0.0/28,10.113.0.0/24,10.111.0.0/24
+        - name: ADVERTISE_IP
+          value: http://10.111.0.112:32400/
         image: docker.io/plexinc/pms-docker:latest
         imagePullPolicy: Always
-        # list of ports taken from off image docs https://hub.docker.com/r/plexinc/pms-docker/
+        name: plex
         ports:
         - containerPort: 32400
           protocol: TCP
@@ -47,28 +63,27 @@ spec:
           protocol: UDP
         - containerPort: 32414
           protocol: UDP
-        env:
-        - name: PLEX_UID
-          value: "10002"
-        - name: PLEX_GID
-          value: "10001"
-        - name: TZ
-          value: "Europe/Amsterdam"
-        - name: ALLOWED_NETWORKS
-          value: "172.16.0.0/16,10.0.0.0/22,10.112.0.0/28,10.113.0.0/24,10.111.0.0/24"
-        - name: ADVERTISE_IP
-          value: http://10.111.0.111:32400/
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
         volumeMounts:
-        - name: plex-config
-          mountPath: /config
-        - name: plex-media
-          mountPath: /data
+        - mountPath: /config
+          name: plex-config
+        - mountPath: /data
+          name: plex-media
+      dnsPolicy: ClusterFirst
       nodeSelector:
         disktype: ssd
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
       volumes:
-        - name: plex-media
-          hostPath:
-            path: /mms
-        - name: plex-config
-          hostPath:
-            path: /mms/config/plex
+      - hostPath:
+          path: /mms
+          type: ""
+        name: plex-media
+      - hostPath:
+          path: /mms/config/plex
+          type: ""
+        name: plex-config
