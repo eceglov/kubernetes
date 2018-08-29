@@ -1,45 +1,61 @@
----
-apiVersion: apps/v1beta2
+apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: jackett
-  namespace: mms
   labels:
     app: jackett
+  name: jackett
+  namespace: mms
 spec:
+  progressDeadlineSeconds: 600
   replicas: 1
+  revisionHistoryLimit: 10
   selector:
     matchLabels:
       app: jackett
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
   template:
     metadata:
+      creationTimestamp: null
       labels:
         app: jackett
     spec:
       containers:
-      - name: jackett
-        image: linuxserver/jackett:latest
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 9117
-          protocol: TCP
-        env:
+      - env:
         - name: PUID
           value: "10003"
         - name: PGID
           value: "10003"
         - name: TZ
-          value: "Europe/Amsterdam"
+          value: Europe/Amsterdam
+        image: linuxserver/jackett:latest
+        imagePullPolicy: Always
+        name: jackett
+        ports:
+        - containerPort: 9117
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
         volumeMounts:
-        - name: jackett-localtime
-          mountPath: /etc/localtime
-        - name: jackett-config
-          mountPath: /config
+        - mountPath: /etc/localtime
+          name: jackett-localtime
+        - mountPath: /config
+          name: jackett-config
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
       volumes:
-      - name: jackett-localtime
-        hostPath:
+      - hostPath:
           path: /etc/localtime
           type: File
-      - name: jackett-config
-        hostPath:
+        name: jackett-localtime
+      - hostPath:
           path: /mms/config/jackett
+          type: ""
+        name: jackett-config
