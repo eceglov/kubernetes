@@ -1,17 +1,17 @@
----
 apiVersion: v1
 kind: Service
 metadata:
   name: sonarr
-  labels:
-    app: sonarr
-    kubernetes.io/name: "sonarr"
+  namespace: mms
 spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - name: http
+    nodePort: 30109
+    port: 80
+    protocol: TCP
+    targetPort: 8989
   selector:
     app: sonarr
-  ports:
-  - name: sonarr
-    nodePort: 30989
-    port: 30989
-    targetPort: 8989
-  type: NodePort
+  sessionAffinity: None
+  type: LoadBalancer
