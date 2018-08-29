@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  annotations:
+    kube-peers.weave.works/peers: '{"Peers":[{"PeerName":"56:e6:f6:ab:8b:b8","NodeName":"s2.dotfoss.mgmt"},{"PeerName":"46:10:2f:37:4c:3c","NodeName":"s1.dotfoss.mgmt"},{"PeerName":"46:bf:42:7a:d1:20","NodeName":"s3.dotfoss.mgmt"}]}'
+  name: weave-net
+  namespace: kube-system

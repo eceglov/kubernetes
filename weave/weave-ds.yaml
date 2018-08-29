@@ -1,0 +1,130 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  labels:
+    name: weave-net
+  name: weave-net
+  namespace: kube-system
+spec:
+  minReadySeconds: 5
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      name: weave-net
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        name: weave-net
+    spec:
+      containers:
+      - command:
+        - /home/weave/launch.sh
+        env:
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        image: weaveworks/weave-kube:2.4.0
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            host: 127.0.0.1
+            path: /status
+            port: 6784
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: weave
+        resources:
+          requests:
+            cpu: 10m
+        securityContext:
+          privileged: true
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /weavedb
+          name: weavedb
+        - mountPath: /host/opt
+          name: cni-bin
+        - mountPath: /host/home
+          name: cni-bin2
+        - mountPath: /host/etc
+          name: cni-conf
+        - mountPath: /host/var/lib/dbus
+          name: dbus
+        - mountPath: /lib/modules
+          name: lib-modules
+        - mountPath: /run/xtables.lock
+          name: xtables-lock
+      - env:
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        image: weaveworks/weave-npc:2.4.0
+        imagePullPolicy: IfNotPresent
+        name: weave-npc
+        resources:
+          requests:
+            cpu: 10m
+        securityContext:
+          privileged: true
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /run/xtables.lock
+          name: xtables-lock
+      dnsPolicy: ClusterFirst
+      hostNetwork: true
+      hostPID: true
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        seLinuxOptions: {}
+      serviceAccount: weave-net
+      serviceAccountName: weave-net
+      terminationGracePeriodSeconds: 30
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      volumes:
+      - hostPath:
+          path: /var/lib/weave
+          type: ""
+        name: weavedb
+      - hostPath:
+          path: /opt
+          type: ""
+        name: cni-bin
+      - hostPath:
+          path: /home
+          type: ""
+        name: cni-bin2
+      - hostPath:
+          path: /etc
+          type: ""
+        name: cni-conf
+      - hostPath:
+          path: /var/lib/dbus
+          type: ""
+        name: dbus
+      - hostPath:
+          path: /lib/modules
+          type: ""
+        name: lib-modules
+      - hostPath:
+          path: /run/xtables.lock
+          type: FileOrCreate
+        name: xtables-lock
+  templateGeneration: 3
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate
